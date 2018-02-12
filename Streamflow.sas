@@ -52,9 +52,21 @@ filename alston url 'https://waterdata.usgs.gov/sc/nwis/uv?cb_00060=on&cb_00065=
 	quit;
 %mend;
 
+%macro CombineRivers(r_ds);
+	data allrivers;
+		merge &r_ds;
+		by dte;
+	run;
+	
+
+
+%mend CombineRivers;
+
 %loadSF(congaree,02169500,31,2017-12-01);
 %loadSf(saluda,02168504,31,2017-12-01);
 %loadSf(alston,02161000,31,2017-12-01);
+
+%combinerivers(r_ds=congaree saluda alston);
 
 data AllRivers;
 	merge alston (in=alst) congaree (in=cong) saluda (in=salu);
