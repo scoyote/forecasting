@@ -1,12 +1,12 @@
 
 /* Note on USGS - not all sites have 15 minute data. Please check before merging*/
 
-/* raw filename statments, typical of what is constructed by macro 
+/* raw filename statments, typical of what is constructed by macro
 filename congcola url 'https://waterdata.usgs.gov/sc/nwis/uv?cb_00060=on&cb_00065=on&format=rdb&site_no=02169500&period=31&begin_date=2017-12-01&end_date=2017-12-31';
 filename saluda url 'https://waterdata.usgs.gov/sc/nwis/uv?cb_00060=on&cb_00065=on&format=rdb&site_no=02168504&period=31&begin_date=2017-12-01&end_date=2017-12-31';
 filename alston url 'https://waterdata.usgs.gov/sc/nwis/uv?cb_00060=on&cb_00065=on&format=rdb&site_no=02161000&period=31&begin_date=2017-12-01&end_date=2017-12-31';
 */
-	
+
 %macro loadSf(ds,siteno,period,begindate);
 	data _null_;
 		call symput('enddate',put(intnx('day',input("&begindate",anydtdte10.),&period),yymmdd10.));
@@ -17,15 +17,17 @@ filename alston url 'https://waterdata.usgs.gov/sc/nwis/uv?cb_00060=on&cb_00065=
 		infile _ftemp dlm = '09'x dsd;
 		input @1 agency_cd $ @;
 		if agency_cd = 'USGS' then do;
-			/* this mixed input fixed some inconsistency in the tab delimiting that I did not research */ 
+			/* this mixed input fixed some inconsistency in the tab delimiting that I did not research */
 			input @6 site_no $ @15 dte anydtdtm16. @32 tz_cd $ discharge discharge_cd $ gageheight gageheight_cd $;
 			output;
 		end;
+		/* added comment */
 		format dte datetime.;
 		keep site_no dte discharge gageheight;
-	run;  
+	run;
 	filename _ftemp clear;
-	
+
+
 	proc transpose data=&ds out=t_gage prefix=Gage
 			label=_Label_;
 		var  gageheight;
@@ -79,7 +81,7 @@ data est fcst;
 run;
 
 proc arima data= est;
-	
+
 	identify var=gage02161000  ; run;
 	estimate p=1 q=1 ; run;
 	identify var=gage02169500 crosscorr=(gage02161000) nlag=24; run;
