@@ -52,21 +52,9 @@ filename alston url 'https://waterdata.usgs.gov/sc/nwis/uv?cb_00060=on&cb_00065=
 	quit;
 %mend;
 
-%macro CombineRivers(r_ds);
-	data allrivers;
-		merge &r_ds;
-		by dte;
-	run;
-	
-
-
-%mend CombineRivers;
-
 %loadSF(congaree,02169500,31,2017-12-01);
 %loadSf(saluda,02168504,31,2017-12-01);
 %loadSf(alston,02161000,31,2017-12-01);
-
-%combinerivers(r_ds=congaree saluda alston);
 
 data AllRivers;
 	merge alston (in=alst) congaree (in=cong) saluda (in=salu);
@@ -85,18 +73,21 @@ proc timeseries data=Work.preProcessedData seasonality=24 plots=(series spectrum
 	crossvar Gage02168504 / accumulate=average transform=none dif=0 sdif=0;
 	crosscorr / nlag=16;
 	spectra / domain=frequency;
-run; 
+run;
 
 proc delete data=Work.preProcessedData;
 run;
 
-
 cas; 
 caslib _all_ assign;
 
+
 proc casutil;
-	load data=work.allrivers 
-	outcaslib="casuser"
-	casout="allriversM";
+	load data=work.allrivers outcaslib="casuser"
+	casout="AllRivers"
+	promote
+	;
 run;
+
+
 
